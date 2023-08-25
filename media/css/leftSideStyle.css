@@ -1,0 +1,149 @@
+.code {
+    white-space: pre;
+}
+
+input {
+    background: var(--vscode-input-background);
+    /* border-color: var(--vscode-input-border); */
+}
+
+
+/* #chat-box {
+    margin-bottom: 80px;
+} */
+
+#prompt-input {
+    padding: 6px;
+    height: 32px;
+    margin-top: 5px;
+    margin-bottom: 1px;
+    border: 1px solid var(--vscode-focusBorder);
+    border-radius: 6px;
+    /* border-color: var(--vscode-focusBorder); */
+}
+
+#prompt-input::placeholder {
+    color: var(--vscode-input-placeholderForeground);
+}
+
+#bottom-box {
+    position: fixed;
+    width: 96%;
+    right: 2%;
+    bottom: 0px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* 定义动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.chat-answer {
+    padding: 10px 10px 10px 10px;
+    background-color: var(--vscode-input-background);
+    animation: fadeIn 1s;
+}
+
+.chat-question {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--vscode-focusBorder);
+    padding: 10px 10px 10px 10px;
+    animation: fadeIn 1s;
+}
+
+pre {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+    white-space: pre-wrap;
+}
+
+pre code {
+    display: block;
+    padding: 0.5rem;
+    overflow-x: scroll;
+}
+
+code {
+    display: inline;
+    padding: 2px 4px 4px 2px;
+    background-color: var(--vscode-editorWidget-background);
+}
+
+.code-tool {
+    display: flex;
+    justify-content: end;
+    padding: 4px 6px 0px 0px;
+    gap: 10px;
+    background-color: var(--vscode-editorWidget-background);
+}
+
+.code-tool a {
+    font-size: 0.8rem;
+    color: var(--vscode-textLink-foreground);
+    font-family: var(--vscode-font-family);
+    font-weight: var(--vscode-font-weight);
+}
+
+.code-tool a:hover {
+    color: var(--vscode-textLink-activeForeground);
+}
+
+.code-tool a:active {
+    border: none;
+}
+
+.code-tool a:focus {
+    border: none;
+}
+
+#read-box p {
+    margin-bottom: 10px;
+}
+
+.response-box {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+#stop-response {
+    display: none;
+    width: 80px;
+    padding: 2px 6px 2px 6px;
+    color: var(--vscode-focusBorder);
+    border: 1px solid var(--vscode-focusBorder);
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+#stop-response:hover {
+    color: var(--vscode-errorForeground);
+    border: 1px solid var(--vscode-errorForeground);
+}
+
+#clear-msg {
+    color: var(--vscode-focusBorder);
+    margin-bottom: 5px;
+}
+
+#clear-msg:hover {
+    color: var(--vscode-errorForeground);
+}
+
+#login-btn {
+    padding: 4px;
+    border-radius: 4px;
+    color: var(--vscode-focusBorder);
+    border: 1px solid var(--vscode-focusBorder);
+}
