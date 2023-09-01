@@ -136,6 +136,8 @@ class CursorWebviewViewProvider implements vscode.WebviewViewProvider {
         }
         // 清除会话
         case "clear": {
+          // 清除上下文
+          this.postContext = [];
           break;
         }
       }
