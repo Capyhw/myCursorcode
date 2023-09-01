@@ -89,12 +89,42 @@ export function activate(context: vscode.ExtensionContext) {
         provider.conversation();
     }
   );
+
+  // 监听光标变化事件
+  const onCursorChange = vscode.window.onDidChangeTextEditorSelection(event => {
+    const editor = event.textEditor;
+    if (!editor) {
+        return;
+    }
+    const { document, selection } = editor;
+    const currentLine = selection.active.line;
+    const line = document.lineAt(currentLine);
+    // 检查当前行是否以 "// " 开头
+    if (line.text.trim().startsWith('// ') && line.text.trim().length > 3) {
+        // 等待用户停止输入的时间间隔（毫秒）
+        const debounceInterval = 3000;
+        // 清除之前的计时器（防止多次调用）
+        if (provider.inputTimer) {
+            clearTimeout(provider.inputTimer);
+        }
+        // 创建新的计时器，等待用户停止输入
+        provider.inputTimer = setTimeout(() => {
+            const inputText = line.text.substring(4); // 去掉 "// "
+            provider.message = '';  //待添加prompt
+            provider.message += inputText;
+            provider.msgType = 'generate';
+            provider.conversation();
+        }, debounceInterval);
+    }
+});
+
   // 将注册的命令和提供者添加到插件上下文的订阅中，以便在插件被禁用时取消注册：
   context.subscriptions.push(
     generationDispose,
     curosrDispose,
     conversationDispose,
-    codeContinuationDispose,
+    // codeContinuationDispose,
+    onCursorChange
   );
 }
 
@@ -105,6 +135,7 @@ class CursorWebviewViewProvider implements vscode.WebviewViewProvider {
   public message: string = "";
   public msgType: ResponseType = "freeform";
   public postContext: IChatList['context'] = [];
+  public inputTimer: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly _extensionUri: vscode.Uri,
