@@ -109,7 +109,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         // 创建新的计时器，等待用户停止输入
         provider.inputTimer = setTimeout(() => {
-            const inputText = line.text.substring(4); // 去掉 "// "
+            const inputText = line.text.trim().substring(3); // 去掉 "// "
             provider.message = '';  //待添加prompt
             provider.message += inputText;
             provider.msgType = 'generate';
