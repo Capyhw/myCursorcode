@@ -33,6 +33,10 @@
         {
           "when": "editorTextFocus",
           "command": "GGcopilot.conversation"
+        },
+        {
+          "when": "editorTextFocus",
+          "command": "GGcopilot.codeContinuation"
         }
       ],
       "editor/context": [
@@ -45,6 +49,11 @@
     },
     "commands": [
       {
+        "command": "GGcopilot.codeContinuation",
+        "title": "代码续写",
+        "category": "GGcopilot"
+      },
+      {
         "command": "GGcopilot.generation",
         "title": "GGcopilotGeneration（先用这个）",
         "category": "GGcopilot"
@@ -56,6 +65,12 @@
       }
     ],
     "keybindings": [
+      {
+        "command": "GGcopilot.codeContinuation",
+        "key": "ctrl+alt+e",
+        "mac": "cmd+alt+e",
+        "when": "editorTextFocus"
+      },
       {
         "command": "GGcopilot.generation",
         "key": "ctrl+alt+y",
@@ -93,6 +108,7 @@
     }
   },
   "scripts": {
+    "build": "npx webpack",
     "vscode:prepublish": "npm run package",
     "compile": "webpack",
     "watch": "webpack --watch",

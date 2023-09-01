@@ -12,10 +12,12 @@ type ResponseType =
 export function activate(context: vscode.ExtensionContext) {
   console.log('your extension "GGcopilot" is now active!🎉');
 
+  // 创建 WebView 视图的提供者实例
   const provider = new CursorWebviewViewProvider(
     context.extensionUri,
     context.extensionPath
   );
+
   // 注册 WebView 视图的提供者：
   const curosrDispose = vscode.window.registerWebviewViewProvider(
     "GGcopilot.chatView",
@@ -24,10 +26,11 @@ export function activate(context: vscode.ExtensionContext) {
       webviewOptions: { retainContextWhenHidden: true },
     }
   );
-  // 注册命令
+  // 注册生成命令
   const generationDispose = vscode.commands.registerTextEditorCommand(
     "GGcopilot.generation",
     (editor: vscode.TextEditor) => {
+      // 提示用户输入
       vscode.window
         .showInputBox({
           prompt: "主人，您有何吩咐?",
@@ -36,6 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
         .then((value) => {
           const selected = editor.document.getText(editor.selection);
           if (value) {
+            // 设置消息类型和内容
             provider.message = value!;
             if (selected) {
               provider.msgType = "edit";
@@ -43,43 +47,95 @@ export function activate(context: vscode.ExtensionContext) {
             } else {
               provider.msgType = "generate";
             }
+            // 发起对话请求
             provider.conversation();
           }
         });
     }
   );
-  // 注册命令
+  // 注册对话命令
   const conversationDispose = vscode.commands.registerTextEditorCommand(
     "GGcopilot.conversation",
     (editor: vscode.TextEditor) => {
+      // 提示用户输入问题
       vscode.window
         .showInputBox({
           prompt: "主人，您有什么问题吗?",
           placeHolder: "帮我解释一下这段代码...",
         })
         .then((value) => {
+          // 设置消息类型和内容
           provider.msgType = "freeform";
           if (value) {
+            // 发起对话请求
             provider.message = value!;
             provider.conversation();
           }
         });
     }
   );
+  // 注册代码续写命令
+  const codeContinuationDispose = vscode.commands.registerTextEditorCommand(
+    "GGcopilot.codeContinuation",
+    (editor: vscode.TextEditor) => {
+      const selected = editor.document.getText(editor.selection);
+        if (selected) {
+          provider.msgType = "edit";
+          provider.message = `你是一名资深前端开发工程师，这是我代码中的一个片段，请根据这个片段续写这段代码，要求代码格式规范，插入必要注释，不必给出测试用例：\n${selected}`;
+        } else {
+          provider.msgType = "generate";
+        }
+        // 发起对话请求
+        provider.conversation();
+    }
+  );
+
+  // 监听光标变化事件
+  const onCursorChange = vscode.window.onDidChangeTextEditorSelection(event => {
+    const editor = event.textEditor;
+    if (!editor) {
+        return;
+    }
+    const { document, selection } = editor;
+    const currentLine = selection.active.line;
+    const line = document.lineAt(currentLine);
+    // 检查当前行是否以 "// " 开头
+    if (line.text.trim().startsWith('// ') && line.text.trim().length > 3) {
+        // 等待用户停止输入的时间间隔（毫秒）
+        const debounceInterval = 3000;
+        // 清除之前的计时器（防止多次调用）
+        if (provider.inputTimer) {
+            clearTimeout(provider.inputTimer);
+        }
+        // 创建新的计时器，等待用户停止输入
+        provider.inputTimer = setTimeout(() => {
+            const inputText = line.text.trim().substring(3); // 去掉 "// "
+            provider.message = '';  //待添加prompt
+            provider.message += inputText;
+            provider.msgType = 'generate';
+            provider.conversation();
+        }, debounceInterval);
+    }
+});
+
   // 将注册的命令和提供者添加到插件上下文的订阅中，以便在插件被禁用时取消注册：
   context.subscriptions.push(
     generationDispose,
     curosrDispose,
-    conversationDispose
+    conversationDispose,
+    // codeContinuationDispose,
+    onCursorChange
   );
 }
 
+// WebView 视图的提供者类
 class CursorWebviewViewProvider implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView;
 
   public message: string = "";
   public msgType: ResponseType = "freeform";
   public postContext: IChatList['context'] = [];
+  public inputTimer: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly _extensionUri: vscode.Uri,
